@@ -20,4 +20,6 @@ class PlanZnamenitost extends Model
     {
         return $this->belongsTo(Znamenitost::class, 'znamenitost_id');
     }
+
+    protected $guarded = [];
 }

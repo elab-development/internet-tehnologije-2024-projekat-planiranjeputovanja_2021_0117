@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Veza sa User
             $table->string('naziv');
             $table->decimal('ukupni_troskovi', 10, 2);
-            $table->date('datum_kreiranja');
+            $table->integer('broj_dana');
             $table->timestamps();
         });
     }

@@ -13,4 +13,6 @@ class PopularnaDestinacija extends Model
     public function destinacija(){
         return $this->belongsTo(Destinacija::class);
     }
+
+    protected $guarded = [];
 }

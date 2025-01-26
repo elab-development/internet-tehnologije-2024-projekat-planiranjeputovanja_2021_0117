@@ -18,4 +18,6 @@ class PlanPutovanja extends Model
     public function planZnamenitost(){
         return $this->hasMany(PlanZnamenitost::class);
     }
+
+    protected $guarded = [];
 }

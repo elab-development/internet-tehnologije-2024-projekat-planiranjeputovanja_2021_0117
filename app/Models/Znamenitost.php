@@ -19,4 +19,6 @@ class Znamenitost extends Model
         return $this->hasMany(PlanZnamenitost::class);
     }
 
+    protected $guarded = [];
+
 }
