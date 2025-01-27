@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('plan_znamenitost', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('plan_putovanja_id')->constrained('plan_putovanja')->onDelete('cascade'); 
+            $table->foreignId('plan_putovanja_id')->constrained('plan_putovanja')->onDelete('cascade');
             $table->foreignId('znamenitost_id')->constrained('znamenitosti')->onDelete('cascade');
-            $table->timestamps(); 
+            $table->timestamps();
         });
+        
     }
 
     /**

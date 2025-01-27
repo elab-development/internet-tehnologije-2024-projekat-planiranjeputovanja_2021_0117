@@ -20,4 +20,5 @@ class PlanPutovanja extends Model
     }
 
     protected $guarded = [];
+    protected $table = 'plan_putovanja';
 }

@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('znamenitosti', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('destinacija_id')->constrained()->onDelete('cascade');
+            $table->foreignId('destinacija_id')->constrained('destinacija')->onDelete('cascade');
             $table->string('naziv');
             $table->text('opis');
             $table->decimal('cena_ulaznice', 10, 2);
+            $table->timestamps();
         });
+        
     }
 
 

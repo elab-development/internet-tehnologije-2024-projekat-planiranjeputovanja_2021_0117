@@ -11,23 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('plan_putovanja', function (Blueprint $table) {
+        Schema::create('cached_plans', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('naziv');
-            $table->decimal('ukupni_troskovi', 10, 2);
-            $table->integer('broj_dana');
+            $table->foreignId('plan_putovanja_id')->constrained('plan_putovanja')->onDelete('cascade');
+            $table->json('data'); // Keširani JSON podaci o planu
             $table->timestamps();
         });
-        
     }
-
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('plan_putovanja');
+        Schema::dropIfExists('cached_plans');
     }
 };

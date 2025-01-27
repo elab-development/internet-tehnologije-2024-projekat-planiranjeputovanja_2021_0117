@@ -22,4 +22,5 @@ class PlanZnamenitost extends Model
     }
 
     protected $guarded = [];
+    protected $table = 'plan_znamenitost';
 }

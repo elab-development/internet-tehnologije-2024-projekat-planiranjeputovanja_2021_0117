@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Destinacija extends Model
 {
+    use HasFactory;
+
     // Relacija: Destinacija - Znamenitost (1:N)
     public function znamenitost(){
         return $this->hasMany(PlanZnamenitost::class);
@@ -17,4 +20,5 @@ class Destinacija extends Model
     }
 
     protected $guarded = [];
+    protected $table = 'destinacija';
 }

@@ -20,5 +20,6 @@ class Znamenitost extends Model
     }
 
     protected $guarded = [];
+    protected $table = 'znamenitosti';
 
 }
