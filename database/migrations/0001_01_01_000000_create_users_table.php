@@ -16,12 +16,13 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            $table->enum('uloga', ['administrator', 'korisnik', 'gost']);
+            $table->enum('uloga', ['administrator', 'korisnik', 'gost'])->default('korisnik'); // Podrazumevana vrednost
             $table->rememberToken();
             $table->timestamps();
         });
-
         
+
+
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
