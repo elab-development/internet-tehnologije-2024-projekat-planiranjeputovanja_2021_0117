@@ -10,12 +10,14 @@ class Destinacija extends Model
     use HasFactory;
 
     // Relacija: Destinacija - Znamenitost (1:N)
-    public function znamenitost(){
-        return $this->hasMany(PlanZnamenitost::class);
+    public function znamenitosti()
+    {
+        return $this->hasMany(Znamenitost::class, 'destinacija_id');
     }
 
     // Relacija: Destinacija - PopularnaDestinacija (1:1)
-    public function popularnaDestinacija(){
+    public function popularnaDestinacija()
+    {
         return $this->hasOne(PopularnaDestinacija::class);
     }
 

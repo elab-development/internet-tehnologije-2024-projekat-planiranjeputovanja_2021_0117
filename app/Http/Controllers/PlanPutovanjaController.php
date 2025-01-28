@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PlanPutovanja;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 class PlanPutovanjaController extends Controller
 {
@@ -45,4 +46,55 @@ class PlanPutovanjaController extends Controller
 
         return response()->json(['plan' => $plan], 200);
     }
+
+    public function updatePlan($id, Request $request)
+    {
+        // Validacija podataka
+        $validator = Validator::make($request->all(), [
+            'naziv' => 'required|string|max:255',  // Validacija naziva plana
+            'ukupni_troskovi' => 'required|numeric|min:1',  // Validacija ukupnih troškova
+            'broj_dana' => 'required|integer|min:1',  // Validacija broja dana
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        // Pronaći plan putovanja prema ID-u i proveriti da li je korisnik vlasnik plana
+        $plan = PlanPutovanja::where('id', $id)
+                             ->where('user_id', $request->user()->id)  // Proverava da li je korisnik vlasnik plana
+                             ->first();
+
+        if (!$plan) {
+            return response()->json(['message' => 'Plan putovanja nije pronađen ili nemate pravo da ga izmenite.'], 404);
+        }
+
+        // Ažuriranje plana
+        $plan->update([
+            'naziv' => $request->naziv,
+            'ukupni_troskovi' => $request->ukupni_troskovi,
+            'broj_dana' => $request->broj_dana,
+        ]);
+
+        return response()->json(['message' => 'Plan putovanja je uspešno izmenjen!', 'plan' => $plan], 200);
+    }
+
+    public function deletePlan($id, Request $request)
+    {
+        // Pronaći plan putovanja prema ID-u i proveriti da li je korisnik vlasnik plana
+        $plan = PlanPutovanja::where('id', $id)
+                             ->where('user_id', $request->user()->id)  // Proverava da li je korisnik vlasnik plana
+                             ->first();
+
+        if (!$plan) {
+            return response()->json(['message' => 'Plan putovanja nije pronađen ili nemate pravo da ga obrišete.'], 404);
+        }
+
+        // Brisanje plana
+        $plan->delete();
+
+        return response()->json(['message' => 'Plan putovanja je uspešno obrisan.'], 200);
+    }
+
+
 }
