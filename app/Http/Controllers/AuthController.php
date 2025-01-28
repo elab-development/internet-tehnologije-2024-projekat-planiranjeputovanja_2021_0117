@@ -129,4 +129,14 @@ class AuthController extends Controller
 
         return response()->json(['plans' => $plans], 200);
     }   
+
+    public function logout(Request $request)
+    {
+        // Uklanja trenutni API token korisnika
+        $request->user()->tokens->each(function ($token) {
+            $token->delete();
+        });
+
+        return response()->json(['message' => 'Uspešno ste se odjavili.'], 200);
+    }
 }

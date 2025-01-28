@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 //Register i Login
 Route::post('/register', [AuthController::class, 'register']); //SK1
 Route::post('/login', [AuthController::class, 'login']); //SK2
+Route::middleware('auth:sanctum')->post('/user/logout', [AuthController::class, 'logout']); //logout
 
 //Nalog update i delete
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
