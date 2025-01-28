@@ -38,4 +38,11 @@ class DestinacijaController extends Controller
             'prosecni_troskovi' => $destinacija->prosecni_troskovi,
         ], 200);
     }
+
+    public function getAllDestinacije()
+    {
+        $destinacije = Destinacija::all();  // Dohvatanje svih destinacija iz baze
+
+        return response()->json($destinacije);  // Vraćanje odgovora u JSON formatu
+    }
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DestinacijaController;
 use App\Http\Controllers\PlanPutovanjaController;
 use Illuminate\Http\Request;
+use App\Http\Controllers\ZnamenitostController;
 
 //Register i Login
 Route::post('/register', [AuthController::class, 'register']); //SK1
@@ -26,6 +27,12 @@ Route::middleware('auth:sanctum')->get('/user/plans/{id}', [PlanPutovanjaControl
 Route::middleware('auth:sanctum')->put('/user/plans/{id}', [PlanPutovanjaController::class, 'updatePlan']); //SK6
 Route::middleware('auth:sanctum')->delete('/user/plans/{id}', [PlanPutovanjaController::class, 'deletePlan']); //SK10
 Route::middleware('auth:sanctum')->post('/user/plans/{id}/share', [PlanPutovanjaController::class, 'sharePlan']); //SK7
+
+//Destinacije
+Route::get('/destinacije', [DestinacijaController::class, 'getAllDestinacije']);
+
+//Znamenitosti
+Route::get('/znamenitosti', [ZnamenitostController::class, 'index']);
 
 //Popularne destinacije
 Route::get('/popularne-destinacije', [DestinacijaController::class, 'getPopularDestinations']); //SK8
