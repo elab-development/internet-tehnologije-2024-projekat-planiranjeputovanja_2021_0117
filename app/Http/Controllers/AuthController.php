@@ -91,4 +91,26 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Profil je uspešno ažuriran!', 'user' => $user]);
     }
+
+    public function deleteAccount(Request $request)
+    {
+        $user = $request->user();  // Dobijamo trenutnog korisnika
+
+        // Obriši povezane podatke (ako je potrebno)
+        // Na primer, obriši planove, znamenitosti, i druge povezane podatke
+        // $user->plans()->delete();
+        // $user->znamenitosti()->delete();
+        // Možeš dodati dodatne slične odnose ako postoje
+
+        // Zatvori session ako je korisnik trenutno ulogovan
+        $user->tokens->each(function ($token) {
+            $token->delete();
+        });
+
+        // Obriši korisnika iz baze
+        $user->delete();
+
+        // Vratiti uspešan odgovor
+        return response()->json(['message' => 'Korisnički nalog je uspešno obrisan!']);
+    }   
 }

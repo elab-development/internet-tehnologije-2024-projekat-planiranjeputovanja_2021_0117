@@ -6,7 +6,10 @@ use Illuminate\Http\Request;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::middleware('auth:sanctum')->put('/user/update', [AuthController::class, 'updateProfile']);
+Route::middleware('auth:sanctum')->delete('/user/delete', [AuthController::class, 'deleteAccount']);
