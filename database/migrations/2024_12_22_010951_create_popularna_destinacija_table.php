@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('destinacija_id')->constrained()->onDelete('cascade');
             $table->integer('broj_posetilaca');
+            $table->timestamps();
         });
     }
 

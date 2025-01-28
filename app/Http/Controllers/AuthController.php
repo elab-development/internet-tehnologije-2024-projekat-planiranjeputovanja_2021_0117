@@ -113,4 +113,20 @@ class AuthController extends Controller
         // Vratiti uspešan odgovor
         return response()->json(['message' => 'Korisnički nalog je uspešno obrisan!']);
     }   
+
+    public function getUserPlans(Request $request)
+    {
+        $user = $request->user();  // Dobijamo trenutnog korisnika
+
+        // Pretpostavljamo da postoji veza između korisnika i planova putovanja
+        // Na primer: $user->plans() <- odnosi se na relaciju između korisnika i planova
+
+        $plans = $user->plans;  // Dobijamo sve planove korisnika
+
+        if ($plans->isEmpty()) {
+            return response()->json(['message' => 'Nemate nijedan plan putovanja.'], 404);
+        }
+
+        return response()->json(['plans' => $plans], 200);
+    }   
 }

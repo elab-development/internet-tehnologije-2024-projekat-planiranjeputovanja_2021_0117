@@ -13,6 +13,6 @@ class DestinacijaSeeder extends Seeder
     public function run(): void
     {
         // Koristi factory da popuni destinacije
-        Destinacija::factory()->count(5)->create();
+        Destinacija::factory()->count(20)->create();
     }
 }

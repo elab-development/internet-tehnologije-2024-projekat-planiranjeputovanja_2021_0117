@@ -13,3 +13,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 Route::middleware('auth:sanctum')->put('/user/update', [AuthController::class, 'updateProfile']);
 Route::middleware('auth:sanctum')->delete('/user/delete', [AuthController::class, 'deleteAccount']);
+Route::middleware('auth:sanctum')->get('/user/plans', [AuthController::class, 'getUserPlans']);
