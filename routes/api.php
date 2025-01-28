@@ -18,11 +18,13 @@ Route::middleware('auth:sanctum')->put('/user/update', [AuthController::class, '
 Route::middleware('auth:sanctum')->delete('/user/delete', [AuthController::class, 'deleteAccount']);
 
 //Planovi putovanja
-Route::middleware('auth:sanctum')->get('/user/plans', [AuthController::class, 'getUserPlans']);
+Route::middleware('auth:sanctum')->get('/user/plans', [AuthController::class, 'getUserPlans']); 
 Route::middleware('auth:sanctum')->post('/user/plans', [PlanPutovanjaController::class, 'createPlan']); //SK3
+Route::middleware('auth:sanctum')->post('/user/plans/generate', [PlanPutovanjaController::class, 'generatePlan']); // SK4
 Route::middleware('auth:sanctum')->get('/user/plans/{id}', [PlanPutovanjaController::class, 'getPlanDetails']); //SK5
 Route::middleware('auth:sanctum')->put('/user/plans/{id}', [PlanPutovanjaController::class, 'updatePlan']); //SK6
 Route::middleware('auth:sanctum')->delete('/user/plans/{id}', [PlanPutovanjaController::class, 'deletePlan']); //SK10
+Route::middleware('auth:sanctum')->post('/user/plans/{id}/share', [PlanPutovanjaController::class, 'sharePlan']); //SK7
 
 //Popularne destinacije
 Route::get('/popularne-destinacije', [DestinacijaController::class, 'getPopularDestinations']); //SK8
