@@ -62,4 +62,33 @@ class AuthController extends Controller
             'token' => $token
         ]);
     }
+
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();  // Dobijamo trenutnog korisnika
+
+        // Validacija podataka
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:8|confirmed', // Lozinka je optional, ali ako je unesena, mora biti potvrđena
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        // Ažuriranje korisničkog imena i emaila
+        $user->name = $request->name;
+        $user->email = $request->email;
+
+        // Ako je unesena nova lozinka, ažuriraj je
+        if ($request->password) {
+            $user->password = Hash::make($request->password);
+        }
+    
+        $user->save();  // Spasi promene u bazi
+
+        return response()->json(['message' => 'Profil je uspešno ažuriran!', 'user' => $user]);
+    }
 }
