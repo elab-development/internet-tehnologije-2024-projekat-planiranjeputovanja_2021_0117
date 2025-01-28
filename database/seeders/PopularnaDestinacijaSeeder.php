@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\PopularnaDestinacija;
+use App\Models\Destinacija;
 
 class PopularnaDestinacijaSeeder extends Seeder
 {

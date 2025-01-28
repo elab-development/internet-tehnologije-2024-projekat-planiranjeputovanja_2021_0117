@@ -15,4 +15,5 @@ class PopularnaDestinacija extends Model
     }
 
     protected $guarded = [];
+    protected $table = 'popularna_destinacija';
 }
