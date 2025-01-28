@@ -31,4 +31,18 @@ class PlanPutovanjaController extends Controller
 
         return response()->json(['message' => 'Plan putovanja je uspešno kreiran!', 'plan' => $plan], 201);
     }
+
+    public function getPlanDetails($id, Request $request)
+    {
+        // Pronaći plan putovanja prema ID-u i proveriti da li je korisnik vlasnik plana
+        $plan = PlanPutovanja::where('id', $id)
+                             ->where('user_id', $request->user()->id)  // Proverava da li je korisnik vlasnik plana
+                             ->first();
+
+        if (!$plan) {
+            return response()->json(['message' => 'Plan putovanja nije pronađen ili nemate pravo da ga pregledate.'], 404);
+        }
+
+        return response()->json(['plan' => $plan], 200);
+    }
 }
