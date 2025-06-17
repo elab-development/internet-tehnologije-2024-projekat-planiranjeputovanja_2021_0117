@@ -10,7 +10,9 @@ function MyPlansPage() {
     try {
       const token = localStorage.getItem("token");
       const response = await api.get("/user/plans", {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       setPlans(response.data.plans);
     } catch (error) {
@@ -23,7 +25,9 @@ function MyPlansPage() {
     try {
       const token = localStorage.getItem("token");
       const response = await api.get(`/user/plans/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       setSelectedPlan(response.data.plan);
       setPoruka("Plan uspešno učitan.");
@@ -33,29 +37,23 @@ function MyPlansPage() {
     }
   };
 
-  const handleChange = (e) => {
-    setSelectedPlan({ ...selectedPlan, [e.target.name]: e.target.value });
-  };
+  const deletePlan = async (id) => {
+    const potvrda = window.confirm("Da li ste sigurni da želite da obrišete ovaj plan?");
+    if (!potvrda) return;
 
-  const handleUpdate = async () => {
     try {
       const token = localStorage.getItem("token");
-      await api.put(
-        `/user/plans/${selectedPlan.id}`,
-        {
-          naziv: selectedPlan.naziv,
-          ukupni_troskovi: selectedPlan.ukupni_troskovi,
-          broj_dana: selectedPlan.broj_dana,
+      await api.delete(`/user/plans/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setPoruka("Plan uspešno izmenjen.");
+      });
+      setPoruka("Plan je uspešno obrisan.");
+      setSelectedPlan(null);
       fetchPlans();
     } catch (error) {
-      console.error("Greška pri izmeni:", error);
-      setPoruka("Greška pri izmeni plana.");
+      console.error("Greška pri brisanju:", error);
+      setPoruka("Došlo je do greške pri brisanju plana.");
     }
   };
 
@@ -76,6 +74,9 @@ function MyPlansPage() {
             <li key={plan.id}>
               {plan.naziv} — {plan.broj_dana} dana — {plan.ukupni_troskovi}€
               <button onClick={() => fetchPlanDetails(plan.id)}>Detalji</button>
+              <button onClick={() => deletePlan(plan.id)} style={{ marginLeft: "10px" }}>
+                Obriši
+              </button>
             </li>
           ))}
         </ul>
@@ -83,38 +84,11 @@ function MyPlansPage() {
 
       {selectedPlan && (
         <div style={{ marginTop: "20px" }}>
-          <h3>Izmena plana:</h3>
-          <label>
-            Naziv:
-            <input
-              type="text"
-              name="naziv"
-              value={selectedPlan.naziv}
-              onChange={handleChange}
-            />
-          </label>
-          <br />
-          <label>
-            Broj dana:
-            <input
-              type="number"
-              name="broj_dana"
-              value={selectedPlan.broj_dana}
-              onChange={handleChange}
-            />
-          </label>
-          <br />
-          <label>
-            Ukupni troškovi (€):
-            <input
-              type="number"
-              name="ukupni_troskovi"
-              value={selectedPlan.ukupni_troskovi}
-              onChange={handleChange}
-            />
-          </label>
-          <br />
-          <button onClick={handleUpdate}>Sačuvaj izmene</button>
+          <h3>Detalji plana:</h3>
+          <p><strong>Naziv:</strong> {selectedPlan.naziv}</p>
+          <p><strong>Ukupni troškovi:</strong> {selectedPlan.ukupni_troskovi} €</p>
+          <p><strong>Broj dana:</strong> {selectedPlan.broj_dana}</p>
+          <p><strong>Kreiran:</strong> {new Date(selectedPlan.created_at).toLocaleString()}</p>
         </div>
       )}
     </div>
