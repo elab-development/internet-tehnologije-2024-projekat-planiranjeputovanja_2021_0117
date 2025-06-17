@@ -10,9 +10,7 @@ function MyPlansPage() {
     try {
       const token = localStorage.getItem("token");
       const response = await api.get("/user/plans", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       setPlans(response.data.plans);
     } catch (error) {
@@ -25,15 +23,39 @@ function MyPlansPage() {
     try {
       const token = localStorage.getItem("token");
       const response = await api.get(`/user/plans/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       setSelectedPlan(response.data.plan);
       setPoruka("Plan uspešno učitan.");
     } catch (error) {
       console.error("Greška pri pregledu plana:", error);
       setPoruka("Plan nije pronađen ili nemate pristup.");
+    }
+  };
+
+  const handleChange = (e) => {
+    setSelectedPlan({ ...selectedPlan, [e.target.name]: e.target.value });
+  };
+
+  const handleUpdate = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await api.put(
+        `/user/plans/${selectedPlan.id}`,
+        {
+          naziv: selectedPlan.naziv,
+          ukupni_troskovi: selectedPlan.ukupni_troskovi,
+          broj_dana: selectedPlan.broj_dana,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setPoruka("Plan uspešno izmenjen.");
+      fetchPlans();
+    } catch (error) {
+      console.error("Greška pri izmeni:", error);
+      setPoruka("Greška pri izmeni plana.");
     }
   };
 
@@ -61,11 +83,38 @@ function MyPlansPage() {
 
       {selectedPlan && (
         <div style={{ marginTop: "20px" }}>
-          <h3>Detalji plana:</h3>
-          <p><strong>Naziv:</strong> {selectedPlan.naziv}</p>
-          <p><strong>Ukupni troškovi:</strong> {selectedPlan.ukupni_troskovi} €</p>
-          <p><strong>Broj dana:</strong> {selectedPlan.broj_dana}</p>
-          <p><strong>Kreiran:</strong> {new Date(selectedPlan.created_at).toLocaleString()}</p>
+          <h3>Izmena plana:</h3>
+          <label>
+            Naziv:
+            <input
+              type="text"
+              name="naziv"
+              value={selectedPlan.naziv}
+              onChange={handleChange}
+            />
+          </label>
+          <br />
+          <label>
+            Broj dana:
+            <input
+              type="number"
+              name="broj_dana"
+              value={selectedPlan.broj_dana}
+              onChange={handleChange}
+            />
+          </label>
+          <br />
+          <label>
+            Ukupni troškovi (€):
+            <input
+              type="number"
+              name="ukupni_troskovi"
+              value={selectedPlan.ukupni_troskovi}
+              onChange={handleChange}
+            />
+          </label>
+          <br />
+          <button onClick={handleUpdate}>Sačuvaj izmene</button>
         </div>
       )}
     </div>
