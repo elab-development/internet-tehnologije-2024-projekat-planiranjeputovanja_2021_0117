@@ -57,6 +57,27 @@ function MyPlansPage() {
     }
   };
 
+  const sharePlan = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await api.get(`/user/plans/${id}/share`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        responseType: "blob",
+      });
+
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const link = document.createElement("a");
+      link.href = window.URL.createObjectURL(blob);
+      link.download = `plan-${id}.pdf`;
+      link.click();
+    } catch (error) {
+      console.error("Greška pri deljenju plana:", error);
+      setPoruka("Greška pri deljenju plana.");
+    }
+  };
+
   useEffect(() => {
     fetchPlans();
   }, []);
@@ -76,6 +97,9 @@ function MyPlansPage() {
               <button onClick={() => fetchPlanDetails(plan.id)}>Detalji</button>
               <button onClick={() => deletePlan(plan.id)} style={{ marginLeft: "10px" }}>
                 Obriši
+              </button>
+              <button onClick={() => sharePlan(plan.id)} style={{ marginLeft: "10px" }}>
+                Podeli (PDF)
               </button>
             </li>
           ))}

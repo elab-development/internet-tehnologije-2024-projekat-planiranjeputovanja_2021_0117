@@ -26,7 +26,7 @@ Route::middleware('auth:sanctum')->post('/user/plans/generate', [PlanPutovanjaCo
 Route::middleware('auth:sanctum')->get('/user/plans/{id}', [PlanPutovanjaController::class, 'getPlanDetails']); //SK5
 Route::middleware('auth:sanctum')->put('/user/plans/{id}', [PlanPutovanjaController::class, 'updatePlan']); //SK6
 Route::middleware('auth:sanctum')->delete('/user/plans/{id}', [PlanPutovanjaController::class, 'deletePlan']); //SK10
-Route::middleware('auth:sanctum')->post('/user/plans/{id}/share', [PlanPutovanjaController::class, 'sharePlan']); //SK7
+Route::middleware('auth:sanctum')->get('/user/plans/{id}/share', [PlanPutovanjaController::class, 'sharePlan']);
 
 //Destinacije
 Route::get('/destinacije', [DestinacijaController::class, 'getAllDestinacije']);
