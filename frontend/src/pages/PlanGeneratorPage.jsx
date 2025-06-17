@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 
 function PlanGeneratorPage() {
@@ -7,6 +8,8 @@ function PlanGeneratorPage() {
   const [dani, setDani] = useState("");
   const [poruka, setPoruka] = useState("");
   const [plan, setPlan] = useState(null);
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -67,6 +70,11 @@ function PlanGeneratorPage() {
           <h3>Kreiran plan:</h3>
           <p><strong>{plan.naziv}</strong></p>
           <p>{plan.broj_dana} dana, ukupno {plan.ukupni_troskovi}€</p>
+          <button
+            onClick={() => navigate(`/generisi-plan?destinacijaId=${plan.id}`)}
+          >
+            Generiši plan automatski
+          </button>
         </div>
       )}
     </div>
