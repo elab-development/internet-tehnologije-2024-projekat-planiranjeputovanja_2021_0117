@@ -4,6 +4,9 @@ import RegisterPage from "./pages/RegisterPage";
 import PlanGeneratorPage from "./pages/PlanGeneratorPage";
 import PlanAutoGeneratorPage from "./pages/PlanAutoGeneratorPage";
 import MyPlansPage from "./pages/MyPlansPage";
+import PopularDestinationsPage from "./pages/PopularDestinationsPage";
+import AllDestinationsPage from "./pages/AllDestinationsPage";
+
 
 
 function App() {
@@ -15,6 +18,8 @@ function App() {
         <Route path="/plan" element={<PlanGeneratorPage />} />
         <Route path="/generisi-plan" element={<PlanAutoGeneratorPage />} />
         <Route path="/moji-planovi" element={<MyPlansPage />} />
+        <Route path="/popularne-destinacije" element={<PopularDestinationsPage />} />
+        <Route path="/destinacije" element={<AllDestinationsPage />} />
       </Routes>
     </Router>
      
