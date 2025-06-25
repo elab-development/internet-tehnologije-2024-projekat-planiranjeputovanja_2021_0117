@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from "react";
 import api from "../api/axios";
+import { Container, Typography, Grid, Box } from "@mui/material";
+import Breadcrumbs from "../components/Breadcrumbs";
+import PlanCard from "../components/PlanCard";
+import PlanModal from "../components/PlanModal";
+import Pagination from "../components/Pagination";
+import Navbar from "../components/Navbar";
 
 function MyPlansPage() {
   const [plans, setPlans] = useState([]);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [poruka, setPoruka] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const plansPerPage = 6;
 
   const fetchPlans = async () => {
     try {
@@ -21,26 +29,16 @@ function MyPlansPage() {
     }
   };
 
-  const fetchPlanDetails = async (id) => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await api.get(`/user/plans/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setSelectedPlan(response.data.plan);
-      setPoruka("Plan uspešno učitan.");
-    } catch (error) {
-      console.error("Greška pri pregledu plana:", error);
-      setPoruka("Plan nije pronađen ili nemate pristup.");
-    }
+  const handleOpenDetails = (plan) => {
+    setSelectedPlan(plan);
   };
 
-  const deletePlan = async (id) => {
-    const potvrda = window.confirm("Da li ste sigurni da želite da obrišete ovaj plan?");
-    if (!potvrda) return;
+  const handleCloseDetails = () => {
+    setSelectedPlan(null);
+  };
 
+  const handleDelete = async (id) => {
+    if (!window.confirm("Da li ste sigurni da želite da obrišete ovaj plan?")) return;
     try {
       const token = localStorage.getItem("token");
       await api.delete(`/user/plans/${id}`, {
@@ -49,7 +47,6 @@ function MyPlansPage() {
         },
       });
       setPoruka("Plan je uspešno obrisan.");
-      setSelectedPlan(null);
       fetchPlans();
     } catch (error) {
       console.error("Greška pri brisanju:", error);
@@ -57,7 +54,7 @@ function MyPlansPage() {
     }
   };
 
-  const sharePlan = async (id) => {
+  const handleDownloadPDF = async (id) => {
     try {
       const token = localStorage.getItem("token");
       const response = await api.get(`/user/plans/${id}/share`, {
@@ -78,44 +75,79 @@ function MyPlansPage() {
     }
   };
 
+  // Paginacija
+  const indexOfLastPlan = currentPage * plansPerPage;
+  const indexOfFirstPlan = indexOfLastPlan - plansPerPage;
+  const currentPlans = plans.slice(indexOfFirstPlan, indexOfLastPlan);
+  const totalPages = Math.ceil(plans.length / plansPerPage);
+
   useEffect(() => {
     fetchPlans();
   }, []);
 
   return (
-    <div>
-      <h2>Moji planovi putovanja</h2>
-      {poruka && <p>{poruka}</p>}
+    <>
+      <Navbar />
+      <Container
+        sx={{
+          mt: 4,
+          p: 3,
+          borderRadius: 3,
+          background: "rgba(255, 255, 255, 0.75)",
+          backdropFilter: "blur(10px)",
+          boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
+          fontFamily: "'Inter', sans-serif",
+        }}
+      >
+        <Breadcrumbs items={["Početna", "Moji planovi"]} />
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          gutterBottom
+          sx={{ color: "#1976d2", mb: 3 }}
+        >
+          Moji planovi putovanja
+        </Typography>
 
-      {plans.length === 0 ? (
-        <p>Nemate nijedan plan.</p>
-      ) : (
-        <ul>
-          {plans.map((plan) => (
-            <li key={plan.id}>
-              {plan.naziv} — {plan.broj_dana} dana — {plan.ukupni_troskovi}€
-              <button onClick={() => fetchPlanDetails(plan.id)}>Detalji</button>
-              <button onClick={() => deletePlan(plan.id)} style={{ marginLeft: "10px" }}>
-                Obriši
-              </button>
-              <button onClick={() => sharePlan(plan.id)} style={{ marginLeft: "10px" }}>
-                Podeli (PDF)
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+        {poruka && (
+          <Typography color="error" sx={{ mb: 2 }}>
+            {poruka}
+          </Typography>
+        )}
 
-      {selectedPlan && (
-        <div style={{ marginTop: "20px" }}>
-          <h3>Detalji plana:</h3>
-          <p><strong>Naziv:</strong> {selectedPlan.naziv}</p>
-          <p><strong>Ukupni troškovi:</strong> {selectedPlan.ukupni_troskovi} €</p>
-          <p><strong>Broj dana:</strong> {selectedPlan.broj_dana}</p>
-          <p><strong>Kreiran:</strong> {new Date(selectedPlan.created_at).toLocaleString()}</p>
-        </div>
-      )}
-    </div>
+        {plans.length === 0 ? (
+          <Typography>Nemate nijedan plan.</Typography>
+        ) : (
+          <>
+            <Grid container spacing={3}>
+              {currentPlans.map((plan) => (
+                <Grid item xs={12} sm={6} md={4} key={plan.id}>
+                  <PlanCard
+                    plan={plan}
+                    onClick={handleOpenDetails}
+                    onDelete={handleDelete}
+                    onDownload={handleDownloadPDF}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+
+            <Box mt={4}>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={(page) => setCurrentPage(page)}
+              />
+            </Box>
+          </>
+        )}
+      <PlanModal
+        plan={selectedPlan}
+        open={!!selectedPlan}
+        onClose={handleCloseDetails}
+      />
+      </Container>
+    </>
   );
 }
 

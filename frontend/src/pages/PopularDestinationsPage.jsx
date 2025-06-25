@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
+import {
+  Container,
+  Typography,
+  Grid,
+  Paper,
+  Box,
+  Button,
+} from "@mui/material";
 import api from "../api/axios";
+import Navbar from "../components/Navbar";
+import Breadcrumbs from "../components/Breadcrumbs";
 
 function PopularDestinationsPage() {
   const [destinacije, setDestinacije] = useState([]);
@@ -20,25 +30,73 @@ function PopularDestinationsPage() {
   }, []);
 
   return (
-    <div>
-      <h2>Popularne destinacije</h2>
-      {poruka && <p>{poruka}</p>}
-      {destinacije.length === 0 ? (
-        <p>Trenutno nema popularnih destinacija.</p>
-      ) : (
-        <ul>
-          {destinacije.map((item) => (
-            <li key={item.id} style={{ marginBottom: "1rem" }}>
-              <strong>{item.destinacija.naziv}</strong> ({item.destinacija.drzava})<br />
-              Posetilaca: {item.broj_posetilaca} <br />
-              Prosečna ocena: {item.prosecna_ocena}/10 <br />
-              Prosečni troškovi: {item.destinacija.prosecni_troskovi}€ <br />
-              <em>{item.destinacija.opis}</em>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <>
+      <Navbar />
+      <Container
+        sx={{
+          mt: 4,
+          p: 3,
+          borderRadius: 3,
+          background: "rgba(255,255,255,0.75)",
+          backdropFilter: "blur(10px)",
+          boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
+          fontFamily: "'Inter', sans-serif",
+        }}
+      >
+        <Breadcrumbs items={["Početna", "Popularne destinacije"]} />
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          color="primary"
+          gutterBottom
+        >
+          Popularne destinacije
+        </Typography>
+
+        {poruka && <Typography color="error">{poruka}</Typography>}
+
+        {destinacije.length === 0 ? (
+          <Typography>Trenutno nema popularnih destinacija.</Typography>
+        ) : (
+          <Grid container spacing={3}>
+            {destinacije.map((item) => (
+              <Grid item xs={12} sm={6} md={4} key={item.id}>
+                <Paper
+                  elevation={3}
+                  sx={{
+                    p: 2,
+                    borderRadius: 3,
+                    backgroundColor: "rgba(255,255,255,0.95)",
+                    transition: "0.3s",
+                    "&:hover": {
+                      boxShadow: "0 10px 24px rgba(0,0,0,0.2)",
+                      transform: "translateY(-5px)",
+                    },
+                  }}
+                >
+                  <Typography variant="h6" fontWeight="bold" color="primary">
+                    {item.destinacija.naziv}
+                  </Typography>
+                  <Typography>{item.destinacija.drzava}</Typography>
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    Posetilaca: {item.broj_posetilaca}
+                  </Typography>
+                  <Typography variant="body2">
+                    Ocena: {item.prosecna_ocena}/10
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    Troškovi: {item.destinacija.prosecni_troskovi} €
+                  </Typography>
+                  <Typography variant="body2" fontStyle="italic">
+                    {item.destinacija.opis}
+                  </Typography>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        )}
+      </Container>
+    </>
   );
 }
 
