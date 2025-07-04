@@ -6,25 +6,85 @@ import PlanAutoGeneratorPage from "./pages/PlanAutoGeneratorPage";
 import MyPlansPage from "./pages/MyPlansPage";
 import PopularDestinationsPage from "./pages/PopularDestinationsPage";
 import AllDestinationsPage from "./pages/AllDestinationsPage";
-
-
+import PrivateRoute from "./components/PrivateRoute";
+import PublicRoute from "./components/PublicRoute";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/plan" element={<PlanGeneratorPage />} />
-        <Route path="/generisi-plan" element={<PlanAutoGeneratorPage />} />
-        <Route path="/moji-planovi" element={<MyPlansPage />} />
-        <Route path="/popularne-destinacije" element={<PopularDestinationsPage />} />
-        <Route path="/destinacije" element={<AllDestinationsPage />} />
+        {/* Javni pristup samo ako nije prijavljen */}
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <LoginPage />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <RegisterPage />
+            </PublicRoute>
+          }
+        />
+
+        {/* Zaštićene rute */}
+        <Route
+          path="/plan"
+          element={
+            <PrivateRoute>
+              <PlanGeneratorPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/generisi-plan"
+          element={
+            <PrivateRoute>
+              <PlanAutoGeneratorPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/moji-planovi"
+          element={
+            <PrivateRoute>
+              <MyPlansPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/popularne-destinacije"
+          element={
+            <PrivateRoute>
+              <PopularDestinationsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/destinacije"
+          element={
+            <PrivateRoute>
+              <AllDestinationsPage />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Default: ako neko ukuca nešto drugo */}
+        <Route
+          path="*"
+          element={
+            <PublicRoute>
+              <LoginPage />
+            </PublicRoute>
+          }
+        />
       </Routes>
     </Router>
-     
   );
 }
-
 
 export default App;

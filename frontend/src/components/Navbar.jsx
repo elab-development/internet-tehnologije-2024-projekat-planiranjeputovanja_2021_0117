@@ -1,61 +1,63 @@
 import React from "react";
-import {
-  AppBar,
-  Toolbar,
-  Tabs,
-  Tab,
-  Button,
-  Box,
-  Typography,
-} from "@mui/material";
-import { useNavigate, useLocation } from "react-router-dom";
+import { AppBar, Toolbar, Typography, Button, Box, IconButton, Tooltip } from "@mui/material";
+import TravelExploreIcon from "@mui/icons-material/TravelExplore";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
 
-const Navbar = () => {
+function Navbar() {
   const navigate = useNavigate();
-  const location = useLocation();
+  const token = localStorage.getItem("token");
 
-  const handleTabChange = (event, newValue) => {
-    navigate(newValue);
+  const handleLogout = async () => {
+    try {
+      await api.post("/user/logout", null, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch (error) {
+      console.error("Greška pri logout-u:", error);
+    }
+
+    localStorage.removeItem("token");
+    navigate("/login");
   };
 
   return (
-    <AppBar position="static" sx={{
-        background: "linear-gradient(90deg, #e3f2fd, #bbdefb)",
-        color: "#0d47a1",
-        boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-        backdropFilter: "blur(12px)",
-      }} elevation={3}>
-      <Toolbar sx={{ px: 3 }}>
-        <Typography variant="h6" sx={{ flexGrow: 1, color: "#0d47a1", fontWeight: "bold", }}>
+    <AppBar position="static" sx={{ background: "#1976d2" }}>
+      <Toolbar>
+        <TravelExploreIcon sx={{ mr: 1 }} />
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{ flexGrow: 1, fontWeight: "bold", cursor: "pointer" }}
+          onClick={() => navigate("/")}
+        >
           Planiranje Putovanja
         </Typography>
-        <Tabs
-          value={
-            location.pathname === "/moji-planovi"
-              ? "/moji-planovi"
-              : location.pathname === "/destinacije"
-              ? "/destinacije"
-              : false
-          }
-          onChange={handleTabChange}
-          textColor="inherit"
-          indicatorColor="secondary"
-        >
-          <Tab label="Moji planovi" value="/moji-planovi" />
-          <Tab label="Destinacije" value="/destinacije" />
-        </Tabs>
-        <Box ml={2}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => navigate("/plan")}
-          >
+
+        <Box sx={{ display: "flex", gap: 2 }}>
+          <Button color="inherit" onClick={() => navigate("/moji-planovi")}>
+            Moji planovi
+          </Button>
+          <Button color="inherit" onClick={() => navigate("/destinacije")}>
+            Destinacije
+          </Button>
+          <Button color="inherit" onClick={() => navigate("/kreiraj-plan")}>
             Kreiraj plan
           </Button>
+
+          {/* Prikazuj logout samo ako postoji token */}
+          {token && (
+            <Tooltip title="Odjavi se">
+              <IconButton color="inherit" onClick={handleLogout}>
+                <LogoutIcon />
+              </IconButton>
+            </Tooltip>
+          )}
         </Box>
       </Toolbar>
     </AppBar>
   );
-};
+}
 
 export default Navbar;
