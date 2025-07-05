@@ -6,6 +6,7 @@ use App\Http\Controllers\DestinacijaController;
 use App\Http\Controllers\PlanPutovanjaController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ZnamenitostController;
+use App\Http\Controllers\WeatherController;
 
 //Register i Login
 Route::post('/register', [AuthController::class, 'register']); //SK1
@@ -44,3 +45,13 @@ Route::middleware(['auth:sanctum', 'uloga:admin'])->get('/admin/test', function 
         'user' => $request->user()->name,
     ]);
 });
+
+
+
+Route::get('/weather/{city}', [WeatherController::class, 'getWeather']);
+Route::get('/test-env', function () {
+    return response()->json([
+        'key' => env('OPENWEATHER_API_KEY'),
+    ]);
+});
+
