@@ -5,19 +5,20 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\PopularnaDestinacija;
 use App\Models\Destinacija;
+use Illuminate\Support\Facades\Cache;
 
 class DestinacijaController extends Controller
 {
     public function getPopularDestinations()
     {
-        $popularDestinations = PopularnaDestinacija::with('destinacija')->get();  // Povezivanje sa tabelom destinacija
-
-        if ($popularDestinations->isEmpty()) {
-            return response()->json(['message' => 'Nema popularnih destinacija.'], 404);
-        }
-
-        return response()->json(['popularne_destinacije' => $popularDestinations], 200);
+        // Keširaj rezultat na 10 minuta (600 sekundi)
+        $popularneDestinacije = Cache::remember('popularne_destinacije', 600, function () {
+            return PopularnaDestinacija::with('destinacija')->get();
+        });
+    
+        return response()->json($popularneDestinacije);
     }
+
 
     public function getDestinacijaDetails($id)
     {

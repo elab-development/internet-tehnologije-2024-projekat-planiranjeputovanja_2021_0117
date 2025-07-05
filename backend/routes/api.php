@@ -37,3 +37,10 @@ Route::get('/znamenitosti', [ZnamenitostController::class, 'index']);
 //Popularne destinacije
 Route::get('/popularne-destinacije', [DestinacijaController::class, 'getPopularDestinations']); //SK8
 Route::get('/destinacija/{id}', [DestinacijaController::class, 'getDestinacijaDetails']); //SK9
+
+Route::middleware(['auth:sanctum', 'uloga:admin'])->get('/admin/test', function (Request $request) {
+    return response()->json([
+        'poruka' => 'Samo admin može da vidi ovu poruku.',
+        'user' => $request->user()->name,
+    ]);
+});
