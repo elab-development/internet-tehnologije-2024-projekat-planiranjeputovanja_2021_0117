@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import PlanGeneratorPage from "./pages/PlanGeneratorPage";
-import PlanAutoGeneratorPage from "./pages/PlanAutoGeneratorPage";
 import MyPlansPage from "./pages/MyPlansPage";
 import PopularDestinationsPage from "./pages/PopularDestinationsPage";
 import AllDestinationsPage from "./pages/AllDestinationsPage";
@@ -37,14 +36,6 @@ function App() {
           element={
             <PrivateRoute>
               <PlanGeneratorPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/generisi-plan"
-          element={
-            <PrivateRoute>
-              <PlanAutoGeneratorPage />
             </PrivateRoute>
           }
         />

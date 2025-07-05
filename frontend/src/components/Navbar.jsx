@@ -42,7 +42,7 @@ function Navbar() {
           <Button color="inherit" onClick={() => navigate("/destinacije")}>
             Destinacije
           </Button>
-          <Button color="inherit" onClick={() => navigate("/kreiraj-plan")}>
+          <Button color="inherit" onClick={() => navigate("/plan")}>
             Kreiraj plan
           </Button>
 

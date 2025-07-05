@@ -1,29 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Container,
   Typography,
   Grid,
+  Paper,
   Box,
   Button,
-  Paper,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
+  Slider,
 } from "@mui/material";
 import api from "../api/axios";
 import Navbar from "../components/Navbar";
 import Breadcrumbs from "../components/Breadcrumbs";
-import Pagination from "../components/Pagination";
 
 function AllDestinationsPage() {
   const [destinacije, setDestinacije] = useState([]);
   const [poruka, setPoruka] = useState("");
   const [selektovanaDestinacija, setSelektovanaDestinacija] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const perPage = 10;
-  const navigate = useNavigate();
+  const [maxCena, setMaxCena] = useState(500); // filter po ceni
 
   const fetchDetalji = async (id) => {
     try {
@@ -50,10 +47,6 @@ function AllDestinationsPage() {
     fetchDestinacije();
   }, []);
 
-  const indexOfLast = currentPage * perPage;
-  const indexOfFirst = indexOfLast - perPage;
-  const currentItems = destinacije.slice(indexOfFirst, indexOfLast);
-
   return (
     <>
       <Navbar />
@@ -68,105 +61,108 @@ function AllDestinationsPage() {
           fontFamily: "'Inter', sans-serif",
         }}
       >
-        <Breadcrumbs items={["Početna", "Sve destinacije"]} />
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-          <Typography variant="h4" fontWeight="bold" color="primary">
-            Sve destinacije
+        <Breadcrumbs items={["Početna", "Destinacije"]} />
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          color="primary"
+          gutterBottom
+        >
+          Sve destinacije
+        </Typography>
+
+        <Box sx={{ mt: 2, mb: 3, width: 300 }}>
+          <Typography gutterBottom>
+            Maksimalna cena: {maxCena}€
           </Typography>
-          <Button variant="contained" onClick={() => navigate("/popularne-destinacije")}>
-            Popularne destinacije
-          </Button>
+          <Slider
+            value={maxCena}
+            onChange={(e, newValue) => setMaxCena(newValue)}
+            min={0}
+            max={1000}
+            step={10}
+            valueLabelDisplay="auto"
+            sx={{ color: "#1976d2" }}
+          />
         </Box>
 
         {poruka && <Typography color="error">{poruka}</Typography>}
 
-        {currentItems.length === 0 ? (
-          <Typography>Trenutno nema dostupnih destinacija.</Typography>
+        {destinacije.length === 0 ? (
+          <Typography>Nema dostupnih destinacija.</Typography>
         ) : (
-          <Grid container spacing={8} alignItems={"stretch"}>
-            {currentItems.map((dest) => (
-              <Grid item xs={12} sm={6} md={4} key={dest.id}>
-                <Paper
-                  elevation={3}
-                  sx={{
-                    p: 2,
-                    borderRadius: 3,
-                    height: "100%",
-                    backgroundColor: "rgba(255,255,255,0.95)",
-                    transition: "0.3s",
-                    "&:hover": {
-                      boxShadow: "0 10px 24px rgba(0,0,0,0.2)",
-                      transform: "translateY(-5px)",
-                    },
-                  }}
-                >
-                  <Typography variant="h6" fontWeight="bold" color="primary">
-                    {dest.naziv}
-                  </Typography>
-                  <Typography>{dest.drzava}</Typography>
-                  <Typography variant="body2" sx={{ mb: 2 }}>
-                    Troškovi: {dest.prosecni_troskovi} €
-                  </Typography>
-                  <Button variant="outlined" onClick={() => fetchDetalji(dest.id)} fullWidth>
-                    Detalji
-                  </Button>
-                </Paper>
-              </Grid>
-            ))}
+          <Grid container spacing={3}>
+            {destinacije
+              .filter((dest) => dest.prosecni_troskovi <= maxCena)
+              .map((dest) => (
+                <Grid item xs={12} sm={6} md={4} key={dest.id}>
+                  <Paper
+                    elevation={3}
+                    sx={{
+                      p: 2,
+                      borderRadius: 3,
+                      backgroundColor: "rgba(255,255,255,0.95)",
+                      transition: "0.3s",
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      "&:hover": {
+                        boxShadow: "0 10px 24px rgba(0,0,0,0.2)",
+                        transform: "translateY(-5px)",
+                      },
+                    }}
+                  >
+                    <Box>
+                      <Typography variant="h6" fontWeight="bold" color="primary">
+                        {dest.naziv}
+                      </Typography>
+                      <Typography>{dest.drzava}</Typography>
+                      <Typography variant="body2" sx={{ mt: 1 }}>
+                        Troškovi: {dest.prosecni_troskovi}€
+                      </Typography>
+                    </Box>
+                    <Button
+                      fullWidth
+                      sx={{ mt: 2 }}
+                      variant="outlined"
+                      onClick={() => fetchDetalji(dest.id)}
+                    >
+                      Detalji
+                    </Button>
+                  </Paper>
+                </Grid>
+              ))}
           </Grid>
         )}
 
-        <Box mt={4}>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={Math.ceil(destinacije.length / perPage)}
-            onPageChange={setCurrentPage}
-          />
-        </Box>
-
-        {/* MODAL DETALJA */}
+        {/* MODAL ZA DETALJE */}
         <Dialog
-          open={!!selektovanaDestinacija}
+          open={Boolean(selektovanaDestinacija)}
           onClose={() => setSelektovanaDestinacija(null)}
           fullWidth
           maxWidth="sm"
-          PaperProps={{
-            sx: {
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-            },
-          }}
         >
-
           <DialogTitle color="primary" fontWeight="bold">
             Detalji destinacije
           </DialogTitle>
           <DialogContent dividers>
             {selektovanaDestinacija && (
               <>
-                <Typography>
-                  <strong>Naziv:</strong> {selektovanaDestinacija.naziv}
-                </Typography>
-                <Typography>
-                  <strong>Država:</strong> {selektovanaDestinacija.drzava}
-                </Typography>
-                <Typography>
-                  <strong>Prosečni troškovi:</strong> {selektovanaDestinacija.prosecni_troskovi} €
-                </Typography>
-                <Typography>
-                  <strong>Opis:</strong> {selektovanaDestinacija.opis}
-                </Typography>
+                <Typography><strong>Naziv:</strong> {selektovanaDestinacija.naziv}</Typography>
+                <Typography><strong>Država:</strong> {selektovanaDestinacija.drzava}</Typography>
+                <Typography><strong>Prosečni troškovi:</strong> {selektovanaDestinacija.prosecni_troskovi} €</Typography>
+                <Typography sx={{ mt: 1 }}><strong>Opis:</strong> {selektovanaDestinacija.opis}</Typography>
+
                 {selektovanaDestinacija.znamenitosti?.length > 0 && (
                   <>
-                    <Typography sx={{ mt: 2 }} fontWeight="bold">
-                      Znamenitosti:
-                    </Typography>
+                    <Typography sx={{ mt: 2 }}><strong>Znamenitosti:</strong></Typography>
                     <ul>
                       {selektovanaDestinacija.znamenitosti.map((zn) => (
                         <li key={zn.id}>
-                          {zn.naziv} – {zn.opis} (Ulaznica: {zn.cena_ulaznice} €)
+                          <Typography>
+                            <strong>{zn.naziv}</strong> – {zn.opis} (Ulaznica: {zn.cena_ulaznice} €)
+                          </Typography>
                         </li>
                       ))}
                     </ul>
@@ -176,7 +172,7 @@ function AllDestinationsPage() {
             )}
           </DialogContent>
           <DialogActions>
-            <Button variant="contained" onClick={() => setSelektovanaDestinacija(null)}>
+            <Button onClick={() => setSelektovanaDestinacija(null)} variant="contained">
               Zatvori
             </Button>
           </DialogActions>
