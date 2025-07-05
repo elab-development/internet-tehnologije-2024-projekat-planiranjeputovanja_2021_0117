@@ -10,8 +10,9 @@ import {
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import EditIcon from "@mui/icons-material/Edit";
 
-function PlanCard({ plan, onClick, onDelete, onDownload }) {
+function PlanCard({ plan, onClick, onDelete, onDownload, onEdit }) {
   const handleClick = () => {
     if (onClick) onClick(plan);
   };
@@ -83,6 +84,20 @@ function PlanCard({ plan, onClick, onDelete, onDownload }) {
             }}
           >
             Obriši
+          </Button>
+
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<EditIcon />}
+            fullWidth
+            onClick={() => onEdit(plan)}
+            sx={{
+              fontWeight: "bold",
+              "&:hover": { backgroundColor: "#e3f2fd" },
+            }}
+          >
+            Izmeni
           </Button>
         </Stack>
       </Box>

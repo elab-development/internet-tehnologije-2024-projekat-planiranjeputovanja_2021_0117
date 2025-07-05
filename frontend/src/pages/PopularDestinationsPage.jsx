@@ -10,16 +10,23 @@ import {
 import api from "../api/axios";
 import Navbar from "../components/Navbar";
 import Breadcrumbs from "../components/Breadcrumbs";
+import { getWeatherByCoords } from "../api/weather";
+import { getCoordsByCity } from "../api/getCoordsByCity";
 
 function PopularDestinationsPage() {
   const [destinacije, setDestinacije] = useState([]);
   const [poruka, setPoruka] = useState("");
+  const [selectedCity, setSelectedCity] = useState(null);
+  const [weather, setWeather] = useState(null);
 
   useEffect(() => {
     const fetchDestinacije = async () => {
       try {
         const response = await api.get("/popularne-destinacije");
-        setDestinacije(response.data.popularne_destinacije);
+        const data = Array.isArray(response.data)
+          ? response.data
+          : response.data.popularne_destinacije || [];
+        setDestinacije(data);
       } catch (error) {
         console.error("Greška pri učitavanju destinacija:", error);
         setPoruka("Greška pri učitavanju popularnih destinacija.");
@@ -28,6 +35,19 @@ function PopularDestinationsPage() {
 
     fetchDestinacije();
   }, []);
+
+  const handleWeatherClick = async (naziv, drzava) => {
+    setSelectedCity(naziv);
+    const coords = await getCoordsByCity(naziv, drzava);
+    if (!coords) {
+      setPoruka("Nije moguće pronaći koordinate za destinaciju.");
+      setWeather(null);
+      return;
+    }
+
+    const data = await getWeatherByCoords(coords.lat, coords.lon);
+    setWeather(data);
+  };
 
   return (
     <>
@@ -44,18 +64,13 @@ function PopularDestinationsPage() {
         }}
       >
         <Breadcrumbs items={["Početna", "Popularne destinacije"]} />
-        <Typography
-          variant="h4"
-          fontWeight="bold"
-          color="primary"
-          gutterBottom
-        >
+        <Typography variant="h4" fontWeight="bold" color="primary" gutterBottom>
           Popularne destinacije
         </Typography>
 
         {poruka && <Typography color="error">{poruka}</Typography>}
 
-        {destinacije.length === 0 ? (
+        {!Array.isArray(destinacije) || destinacije.length === 0 ? (
           <Typography>Trenutno nema popularnih destinacija.</Typography>
         ) : (
           <Grid container spacing={3}>
@@ -75,9 +90,9 @@ function PopularDestinationsPage() {
                   }}
                 >
                   <Typography variant="h6" fontWeight="bold" color="primary">
-                    {item.destinacija.naziv}
+                    {item.destinacija?.naziv || "Nepoznat naziv"}
                   </Typography>
-                  <Typography>{item.destinacija.drzava}</Typography>
+                  <Typography>{item.destinacija?.drzava || "Nepoznata država"}</Typography>
                   <Typography variant="body2" sx={{ mt: 1 }}>
                     Posetilaca: {item.broj_posetilaca}
                   </Typography>
@@ -85,15 +100,38 @@ function PopularDestinationsPage() {
                     Ocena: {item.prosecna_ocena}/10
                   </Typography>
                   <Typography variant="body2" sx={{ mb: 1 }}>
-                    Troškovi: {item.destinacija.prosecni_troskovi} €
+                    Troškovi: {item.destinacija?.prosecni_troskovi} €
                   </Typography>
                   <Typography variant="body2" fontStyle="italic">
-                    {item.destinacija.opis}
+                    {item.destinacija?.opis}
                   </Typography>
+                  <Button
+                    onClick={() =>
+                      handleWeatherClick(
+                        item.destinacija?.naziv,
+                        item.destinacija?.drzava
+                      )
+                    }
+                    size="small"
+                    sx={{ mt: 1 }}
+                  >
+                    Prikaži vreme
+                  </Button>
                 </Paper>
               </Grid>
             ))}
           </Grid>
+        )}
+
+        {weather && selectedCity && (
+          <Box mt={4} p={3} borderRadius={3} bgcolor="rgba(230,245,255,0.6)">
+            <Typography variant="h5" fontWeight="bold">
+              Trenutno vreme u {selectedCity}
+            </Typography>
+            <Typography>Temperatura: {weather.temperature}°C</Typography>
+            <Typography>Vetar: {weather.windspeed} m/s</Typography>
+            <Typography>Kod vremena: {weather.weathercode}</Typography>
+          </Box>
         )}
       </Container>
     </>

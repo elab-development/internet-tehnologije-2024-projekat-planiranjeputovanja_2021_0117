@@ -4,6 +4,7 @@ import { Container, Typography, Grid, Box } from "@mui/material";
 import Breadcrumbs from "../components/Breadcrumbs";
 import PlanCard from "../components/PlanCard";
 import PlanModal from "../components/PlanModal";
+import EditPlanModal from "../components/EditPlanModal";
 import Pagination from "../components/Pagination";
 import Navbar from "../components/Navbar";
 
@@ -13,6 +14,7 @@ function MyPlansPage() {
   const [poruka, setPoruka] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const plansPerPage = 6;
+  const [editPlan, setEditPlan] = useState(null);
 
   const fetchPlans = async () => {
     try {
@@ -75,6 +77,27 @@ function MyPlansPage() {
     }
   };
 
+  const handleEdit = (plan) => {
+    setEditPlan(plan);
+  };
+
+  const handleSaveEdit = async (updatedData) => {
+    try {
+      const token = localStorage.getItem("token");
+      await api.put(`/user/plans/${updatedData.id}`, updatedData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setPoruka("Plan uspešno izmenjen.");
+      setEditPlan(null);
+      fetchPlans();
+    } catch (error) {
+      console.error("Greška pri izmeni:", error);
+      setPoruka("Greška pri izmeni plana.");
+    }
+  };
+
   // Paginacija
   const indexOfLastPlan = currentPage * plansPerPage;
   const indexOfFirstPlan = indexOfLastPlan - plansPerPage;
@@ -127,6 +150,7 @@ function MyPlansPage() {
                     onClick={handleOpenDetails}
                     onDelete={handleDelete}
                     onDownload={handleDownloadPDF}
+                    onEdit={handleEdit}
                   />
                 </Grid>
               ))}
@@ -141,11 +165,19 @@ function MyPlansPage() {
             </Box>
           </>
         )}
-      <PlanModal
-        plan={selectedPlan}
-        open={!!selectedPlan}
-        onClose={handleCloseDetails}
-      />
+
+        <PlanModal
+          plan={selectedPlan}
+          open={!!selectedPlan}
+          onClose={handleCloseDetails}
+        />
+
+        <EditPlanModal
+          open={!!editPlan}
+          plan={editPlan}
+          onClose={() => setEditPlan(null)}
+          onSave={handleSaveEdit}
+        />
       </Container>
     </>
   );

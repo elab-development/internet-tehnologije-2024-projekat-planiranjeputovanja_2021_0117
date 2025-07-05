@@ -86,6 +86,17 @@ function AllDestinationsPage() {
           />
         </Box>
 
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => (window.location.href = "/popularne-destinacije")}
+          >
+            Popularne destinacije
+          </Button>
+        </Box>
+
+
         {poruka && <Typography color="error">{poruka}</Typography>}
 
         {destinacije.length === 0 ? (
