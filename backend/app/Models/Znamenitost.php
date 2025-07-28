@@ -19,7 +19,8 @@ class Znamenitost extends Model
         return $this->hasMany(PlanZnamenitost::class);
     }
 
-    protected $guarded = [];
+    protected $fillable = ['naziv', 'opis', 'cena_ulaznice', 'destinacija_id'];
+
     protected $table = 'znamenitosti';
 
 }

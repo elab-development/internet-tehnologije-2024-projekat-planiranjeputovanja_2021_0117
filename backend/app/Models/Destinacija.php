@@ -23,4 +23,6 @@ class Destinacija extends Model
 
     protected $guarded = [];
     protected $table = 'destinacija';
+    protected $fillable = ['naziv', 'drzava', 'opis', 'prosecni_troskovi'];
+
 }

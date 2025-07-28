@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   Container,
   Typography,
@@ -6,18 +6,47 @@ import {
   Paper,
   Box,
   Button,
+  TextField,
+  useTheme,
 } from "@mui/material";
 import api from "../api/axios";
 import Navbar from "../components/Navbar";
 import Breadcrumbs from "../components/Breadcrumbs";
 import { getWeatherByCoords } from "../api/weather";
 import { getCoordsByCity } from "../api/getCoordsByCity";
+import { AuthContext } from "../context/AuthContext";
 
 function PopularDestinationsPage() {
+  const theme = useTheme();
+  const { user } = useContext(AuthContext);
   const [destinacije, setDestinacije] = useState([]);
   const [poruka, setPoruka] = useState("");
   const [selectedCity, setSelectedCity] = useState(null);
   const [weather, setWeather] = useState(null);
+  const [uloga, setUloga] = useState(null);
+
+  const [novaDestinacijaId, setNovaDestinacijaId] = useState("");
+  const [posetilaca, setPosetilaca] = useState("");
+  const [ocena, setOcena] = useState("");
+
+  useEffect(() => {
+    const fetchUloga = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const response = await api.get("/user", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUloga(response.data.prava_pristupa || "korisnik");
+      } catch (error) {
+        console.error("Greška pri dohvaćanju uloge:", error);
+        setUloga(null);
+      }
+    };
+
+    fetchUloga();
+  }, []);
 
   useEffect(() => {
     const fetchDestinacije = async () => {
@@ -49,6 +78,69 @@ function PopularDestinationsPage() {
     setWeather(data);
   };
 
+  const handleDelete = async (id) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setPoruka("Niste prijavljeni.");
+      return;
+    }
+
+    try {
+      await api.delete(`/admin/popularne-destinacije/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setDestinacije((prev) => prev.filter((d) => d.id !== id));
+      setPoruka("Uspešno obrisano.");
+    } catch (err) {
+      console.error(err);
+      setPoruka("Greška pri brisanju.");
+    }
+  };
+
+  const handleAdd = async () => {
+    if (!novaDestinacijaId || !posetilaca || !ocena) {
+      setPoruka("Popuni sva polja za dodavanje destinacije.");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setPoruka("Niste prijavljeni.");
+      return;
+    }
+
+    try {
+      const response = await api.post(
+        `/admin/popularne-destinacije`,
+        {
+          destinacija_id: novaDestinacijaId,
+          broj_posetilaca: posetilaca,
+          prosecna_ocena: ocena,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setDestinacije((prev) => [...prev, response.data]);
+      setPoruka("Uspešno dodata destinacija!");
+      setNovaDestinacijaId("");
+      setPosetilaca("");
+      setOcena("");
+    } catch (error) {
+      console.error(error);
+      setPoruka("Greška pri dodavanju destinacije.");
+    }
+  };
+
+  const bgColor = theme.palette.mode === "dark" ? "#1e1e1e" : "rgba(255,255,255,0.75)";
+  const cardColor = theme.palette.mode === "dark" ? "#2c2c2c" : "rgba(255,255,255,0.95)";
+  const boxColor = theme.palette.mode === "dark" ? "#333" : "rgba(255,255,255,0.9)";
+
   return (
     <>
       <Navbar />
@@ -57,7 +149,7 @@ function PopularDestinationsPage() {
           mt: 4,
           p: 3,
           borderRadius: 3,
-          background: "rgba(255,255,255,0.75)",
+          background: bgColor,
           backdropFilter: "blur(10px)",
           boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
           fontFamily: "'Inter', sans-serif",
@@ -81,7 +173,8 @@ function PopularDestinationsPage() {
                   sx={{
                     p: 2,
                     borderRadius: 3,
-                    backgroundColor: "rgba(255,255,255,0.95)",
+                    backgroundColor: cardColor,
+                    color: theme.palette.text.primary,
                     transition: "0.3s",
                     "&:hover": {
                       boxShadow: "0 10px 24px rgba(0,0,0,0.2)",
@@ -107,31 +200,27 @@ function PopularDestinationsPage() {
                   </Typography>
                   <Button
                     onClick={() =>
-                      handleWeatherClick(
-                        item.destinacija?.naziv,
-                        item.destinacija?.drzava
-                      )
+                      handleWeatherClick(item.destinacija?.naziv, item.destinacija?.drzava)
                     }
                     size="small"
-                    sx={{ mt: 1 }}
+                    sx={{ mt: 1, mr: 1 }}
                   >
                     Prikaži vreme
                   </Button>
+                  {uloga === "admin" && (
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      onClick={() => handleDelete(item.id)}
+                    >
+                      Obriši
+                    </Button>
+                  )}
                 </Paper>
               </Grid>
             ))}
           </Grid>
-        )}
-
-        {weather && selectedCity && (
-          <Box mt={4} p={3} borderRadius={3} bgcolor="rgba(230,245,255,0.6)">
-            <Typography variant="h5" fontWeight="bold">
-              Trenutno vreme u {selectedCity}
-            </Typography>
-            <Typography>Temperatura: {weather.temperature}°C</Typography>
-            <Typography>Vetar: {weather.windspeed} m/s</Typography>
-            <Typography>Kod vremena: {weather.weathercode}</Typography>
-          </Box>
         )}
       </Container>
     </>

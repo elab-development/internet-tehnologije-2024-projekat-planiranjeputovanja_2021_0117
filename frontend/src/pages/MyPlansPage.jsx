@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import api from "../api/axios";
-import { Container, Typography, Grid, Box } from "@mui/material";
+import {
+  Container,
+  Typography,
+  Grid,
+  Box,
+  useTheme,
+  Button,
+} from "@mui/material";
 import Breadcrumbs from "../components/Breadcrumbs";
 import PlanCard from "../components/PlanCard";
 import PlanModal from "../components/PlanModal";
@@ -9,8 +17,11 @@ import Pagination from "../components/Pagination";
 import Navbar from "../components/Navbar";
 
 function MyPlansPage() {
+  const theme = useTheme();
+
   const [plans, setPlans] = useState([]);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [convertedAmount, setConvertedAmount] = useState(null);
   const [poruka, setPoruka] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const plansPerPage = 6;
@@ -33,10 +44,29 @@ function MyPlansPage() {
 
   const handleOpenDetails = (plan) => {
     setSelectedPlan(plan);
+    setConvertedAmount(null); // resetuj prethodni rezultat
   };
 
   const handleCloseDetails = () => {
     setSelectedPlan(null);
+    setConvertedAmount(null);
+  };
+
+  const handleConvertCurrency = async () => {
+    if (!selectedPlan) return;
+    try {
+      const response = await axios.get("https://api.exchangerate.host/convert", {
+        params: {
+          from: "EUR",
+          to: "RSD",
+          amount: selectedPlan.ukupni_troskovi,
+        },
+      });
+      setConvertedAmount(response.data.result);
+    } catch (error) {
+      console.error("Greška pri konverziji:", error);
+      setConvertedAmount("Greška!");
+    }
   };
 
   const handleDelete = async (id) => {
@@ -116,7 +146,11 @@ function MyPlansPage() {
           mt: 4,
           p: 3,
           borderRadius: 3,
-          background: "rgba(255, 255, 255, 0.75)",
+          backgroundColor:
+            theme.palette.mode === "dark"
+              ? "rgba(18, 18, 18, 0.9)"
+              : "rgba(255, 255, 255, 0.75)",
+          color: theme.palette.text.primary,
           backdropFilter: "blur(10px)",
           boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
           fontFamily: "'Inter', sans-serif",
@@ -127,7 +161,12 @@ function MyPlansPage() {
           variant="h4"
           fontWeight="bold"
           gutterBottom
-          sx={{ color: "#1976d2", mb: 3 }}
+          sx={{
+            color: theme.palette.mode === "dark"
+              ? theme.palette.primary.light
+              : theme.palette.primary.main,
+            mb: 3,
+          }}
         >
           Moji planovi putovanja
         </Typography>
@@ -170,6 +209,8 @@ function MyPlansPage() {
           plan={selectedPlan}
           open={!!selectedPlan}
           onClose={handleCloseDetails}
+          onConvert={handleConvertCurrency}
+          convertedAmount={convertedAmount}
         />
 
         <EditPlanModal

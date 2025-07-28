@@ -9,11 +9,13 @@ class PopularnaDestinacija extends Model
 {
     use HasFactory;
 
-    // Relacija: PopularnaDestinacija - Destinacija (1:1)
-    public function destinacija(){
+    protected $table = 'popularna_destinacija';
+    protected $guarded = []; // dozvoljava mass assignment za sve kolone
+
+    public function destinacija()
+    {
         return $this->belongsTo(Destinacija::class);
     }
-
-    protected $guarded = [];
-    protected $table = 'popularna_destinacija';
 }
+
+?>

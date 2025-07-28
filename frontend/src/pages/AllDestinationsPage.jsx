@@ -11,6 +11,12 @@ import {
   DialogContent,
   DialogActions,
   Slider,
+  TextField,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+  useTheme,
 } from "@mui/material";
 import api from "../api/axios";
 import Navbar from "../components/Navbar";
@@ -20,7 +26,14 @@ function AllDestinationsPage() {
   const [destinacije, setDestinacije] = useState([]);
   const [poruka, setPoruka] = useState("");
   const [selektovanaDestinacija, setSelektovanaDestinacija] = useState(null);
-  const [maxCena, setMaxCena] = useState(500); // filter po ceni
+  const [maxCena, setMaxCena] = useState(1000);
+
+  const [pretragaNaziv, setPretragaNaziv] = useState("");
+  const [pretragaDrzava, setPretragaDrzava] = useState("");
+  const [sortiraj, setSortiraj] = useState("rastuce");
+
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
 
   const fetchDetalji = async (id) => {
     try {
@@ -47,6 +60,19 @@ function AllDestinationsPage() {
     fetchDestinacije();
   }, []);
 
+  const filtriraneDestinacije = destinacije
+    .filter((dest) => dest.prosecni_troskovi <= maxCena)
+    .filter((dest) =>
+      dest.naziv.toLowerCase().includes(pretragaNaziv.toLowerCase())
+    )
+    .filter((dest) =>
+      dest.drzava.toLowerCase().includes(pretragaDrzava.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sortiraj === "rastuce") return a.prosecni_troskovi - b.prosecni_troskovi;
+      else return b.prosecni_troskovi - a.prosecni_troskovi;
+    });
+
   return (
     <>
       <Navbar />
@@ -55,26 +81,44 @@ function AllDestinationsPage() {
           mt: 4,
           p: 3,
           borderRadius: 3,
-          background: "rgba(255,255,255,0.75)",
+          background: theme.palette.background.default,
+          color: theme.palette.text.primary,
           backdropFilter: "blur(10px)",
           boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
           fontFamily: "'Inter', sans-serif",
         }}
       >
         <Breadcrumbs items={["Početna", "Destinacije"]} />
-        <Typography
-          variant="h4"
-          fontWeight="bold"
-          color="primary"
-          gutterBottom
-        >
+        <Typography variant="h4" fontWeight="bold" color="primary" gutterBottom>
           Sve destinacije
         </Typography>
 
+        <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 3 }}>
+          <TextField
+            label="Pretraga po nazivu"
+            value={pretragaNaziv}
+            onChange={(e) => setPretragaNaziv(e.target.value)}
+          />
+          <TextField
+            label="Pretraga po državi"
+            value={pretragaDrzava}
+            onChange={(e) => setPretragaDrzava(e.target.value)}
+          />
+          <FormControl sx={{ minWidth: 150 }}>
+            <InputLabel>Sortiraj po ceni</InputLabel>
+            <Select
+              value={sortiraj}
+              label="Sortiraj po ceni"
+              onChange={(e) => setSortiraj(e.target.value)}
+            >
+              <MenuItem value="rastuce">Rastuće</MenuItem>
+              <MenuItem value="opadajuce">Opadajuće</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+
         <Box sx={{ mt: 2, mb: 3, width: 300 }}>
-          <Typography gutterBottom>
-            Maksimalna cena: {maxCena}€
-          </Typography>
+          <Typography gutterBottom>Maksimalna cena: {maxCena}€</Typography>
           <Slider
             value={maxCena}
             onChange={(e, newValue) => setMaxCena(newValue)}
@@ -82,7 +126,7 @@ function AllDestinationsPage() {
             max={1000}
             step={10}
             valueLabelDisplay="auto"
-            sx={{ color: "#1976d2" }}
+            sx={{ color: theme.palette.primary.main }}
           />
         </Box>
 
@@ -96,58 +140,64 @@ function AllDestinationsPage() {
           </Button>
         </Box>
 
-
         {poruka && <Typography color="error">{poruka}</Typography>}
 
-        {destinacije.length === 0 ? (
+        {filtriraneDestinacije.length === 0 ? (
           <Typography>Nema dostupnih destinacija.</Typography>
         ) : (
           <Grid container spacing={3}>
-            {destinacije
-              .filter((dest) => dest.prosecni_troskovi <= maxCena)
-              .map((dest) => (
-                <Grid item xs={12} sm={6} md={4} key={dest.id}>
-                  <Paper
-                    elevation={3}
+            {filtriraneDestinacije.map((dest) => (
+              <Grid item xs={12} sm={6} md={4} key={dest.id}>
+                <Paper
+                  elevation={3}
+                  sx={{
+                    p: 2,
+                    borderRadius: 3,
+                    backgroundColor: isDark ? "#1e1e1e" : "rgba(255,255,255,0.95)",
+                    color: isDark ? "#fff" : "#000",
+                    transition: "0.3s",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    "&:hover": {
+                      boxShadow: isDark
+                        ? "0 10px 24px rgba(255,255,255,0.2)"
+                        : "0 10px 24px rgba(0,0,0,0.2)",
+                      transform: "translateY(-5px)",
+                    },
+                  }}
+                >
+                  <Box>
+                    <Typography variant="h6" fontWeight="bold" color="primary">
+                      {dest.naziv}
+                    </Typography>
+                    <Typography>{dest.drzava}</Typography>
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      Troškovi: {dest.prosecni_troskovi}€
+                    </Typography>
+                  </Box>
+                  <Button
+                    fullWidth
                     sx={{
-                      p: 2,
-                      borderRadius: 3,
-                      backgroundColor: "rgba(255,255,255,0.95)",
-                      transition: "0.3s",
-                      height: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
+                      mt: 2,
+                      borderColor: isDark ? "#90caf9" : undefined,
+                      color: isDark ? "#90caf9" : undefined,
                       "&:hover": {
-                        boxShadow: "0 10px 24px rgba(0,0,0,0.2)",
-                        transform: "translateY(-5px)",
+                        backgroundColor: isDark ? "#2c2c2c" : "#e3f2fd",
                       },
                     }}
+                    variant="outlined"
+                    onClick={() => fetchDetalji(dest.id)}
                   >
-                    <Box>
-                      <Typography variant="h6" fontWeight="bold" color="primary">
-                        {dest.naziv}
-                      </Typography>
-                      <Typography>{dest.drzava}</Typography>
-                      <Typography variant="body2" sx={{ mt: 1 }}>
-                        Troškovi: {dest.prosecni_troskovi}€
-                      </Typography>
-                    </Box>
-                    <Button
-                      fullWidth
-                      sx={{ mt: 2 }}
-                      variant="outlined"
-                      onClick={() => fetchDetalji(dest.id)}
-                    >
-                      Detalji
-                    </Button>
-                  </Paper>
-                </Grid>
-              ))}
+                    Detalji
+                  </Button>
+                </Paper>
+              </Grid>
+            ))}
           </Grid>
         )}
 
-        {/* MODAL ZA DETALJE */}
         <Dialog
           open={Boolean(selektovanaDestinacija)}
           onClose={() => setSelektovanaDestinacija(null)}

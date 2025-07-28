@@ -6,6 +6,7 @@ import {
   Button,
   Stack,
   Box,
+  useTheme,
 } from "@mui/material";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -13,6 +14,9 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 
 function PlanCard({ plan, onClick, onDelete, onDownload, onEdit }) {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+
   const handleClick = () => {
     if (onClick) onClick(plan);
   };
@@ -23,7 +27,8 @@ function PlanCard({ plan, onClick, onDelete, onDownload, onEdit }) {
       sx={{
         p: 2,
         borderRadius: 3,
-        backgroundColor: "rgba(255,255,255,0.95)",
+        backgroundColor: isDark ? "#1e1e1e" : "rgba(255,255,255,0.95)",
+        color: isDark ? "#fff" : "#000",
         transition: "transform 0.3s, box-shadow 0.3s",
         fontFamily: "'Inter', sans-serif",
         display: "flex",
@@ -31,12 +36,19 @@ function PlanCard({ plan, onClick, onDelete, onDownload, onEdit }) {
         justifyContent: "space-between",
         "&:hover": {
           transform: "translateY(-5px)",
-          boxShadow: "0 12px 24px rgba(0,0,0,0.2)",
+          boxShadow: isDark
+            ? "0 12px 24px rgba(255,255,255,0.1)"
+            : "0 12px 24px rgba(0,0,0,0.2)",
         },
       }}
     >
       <CardContent>
-        <Typography variant="h6" fontWeight="bold" color="primary" gutterBottom>
+        <Typography
+          variant="h6"
+          fontWeight="bold"
+          color={isDark ? "primary.light" : "primary"}
+          gutterBottom
+        >
           {plan.naziv}
         </Typography>
         <Typography variant="body2">
@@ -53,7 +65,11 @@ function PlanCard({ plan, onClick, onDelete, onDownload, onEdit }) {
             onClick={handleClick}
             sx={{
               fontWeight: "bold",
-              "&:hover": { backgroundColor: "#e3f2fd" },
+              color: isDark ? "#90caf9" : undefined,
+              borderColor: isDark ? "#90caf9" : undefined,
+              "&:hover": {
+                backgroundColor: isDark ? "#2c2c2c" : "#e3f2fd",
+              },
             }}
           >
             Detalji
@@ -66,7 +82,11 @@ function PlanCard({ plan, onClick, onDelete, onDownload, onEdit }) {
             onClick={() => onDownload(plan.id)}
             sx={{
               fontWeight: "bold",
-              "&:hover": { backgroundColor: "#e3f2fd" },
+              color: isDark ? "#ce93d8" : undefined,
+              borderColor: isDark ? "#ce93d8" : undefined,
+              "&:hover": {
+                backgroundColor: isDark ? "#2c2c2c" : "#f3e5f5",
+              },
             }}
           >
             Preuzmi PDF
@@ -80,7 +100,9 @@ function PlanCard({ plan, onClick, onDelete, onDownload, onEdit }) {
             onClick={() => onDelete(plan.id)}
             sx={{
               fontWeight: "bold",
-              "&:hover": { backgroundColor: "#ffebee" },
+              "&:hover": {
+                backgroundColor: isDark ? "#3b1c1c" : "#ffebee",
+              },
             }}
           >
             Obriši
@@ -94,7 +116,9 @@ function PlanCard({ plan, onClick, onDelete, onDownload, onEdit }) {
             onClick={() => onEdit(plan)}
             sx={{
               fontWeight: "bold",
-              "&:hover": { backgroundColor: "#e3f2fd" },
+              "&:hover": {
+                backgroundColor: isDark ? "#2c2c2c" : "#e3f2fd",
+              },
             }}
           >
             Izmeni

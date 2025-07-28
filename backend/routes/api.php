@@ -1,57 +1,54 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DestinacijaController;
 use App\Http\Controllers\PlanPutovanjaController;
-use Illuminate\Http\Request;
 use App\Http\Controllers\ZnamenitostController;
 use App\Http\Controllers\WeatherController;
+use App\Http\Controllers\PopularnaDestinacijaController;
+use App\Http\Middleware\CheckUloga; // ← OBAVEZNO
+use App\Models\Znamenitost;
 
-//Register i Login
-Route::post('/register', [AuthController::class, 'register']); //SK1
-Route::post('/login', [AuthController::class, 'login']); //SK2
-Route::middleware('auth:sanctum')->post('/user/logout', [AuthController::class, 'logout']); //logout
+// Register i Login
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->post('/user/logout', [AuthController::class, 'logout']);
 
-//Nalog update i delete
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Nalog update i delete
+Route::middleware('auth:sanctum')->get('/user', fn (Request $request) => $request->user());
 Route::middleware('auth:sanctum')->put('/user/update', [AuthController::class, 'updateProfile']);
 Route::middleware('auth:sanctum')->delete('/user/delete', [AuthController::class, 'deleteAccount']);
 
-//Planovi putovanja
-Route::middleware('auth:sanctum')->get('/user/plans', [AuthController::class, 'getUserPlans']); 
-Route::middleware('auth:sanctum')->post('/user/plans', [PlanPutovanjaController::class, 'createPlan']); //SK3
-Route::middleware('auth:sanctum')->post('/user/plans/generate', [PlanPutovanjaController::class, 'generatePlan']); // SK4
-Route::middleware('auth:sanctum')->get('/user/plans/{id}', [PlanPutovanjaController::class, 'getPlanDetails']); //SK5
-Route::middleware('auth:sanctum')->put('/user/plans/{id}', [PlanPutovanjaController::class, 'updatePlan']); //SK6
-Route::middleware('auth:sanctum')->delete('/user/plans/{id}', [PlanPutovanjaController::class, 'deletePlan']); //SK10
-Route::middleware('auth:sanctum')->get('/user/plans/{id}/share', [PlanPutovanjaController::class, 'sharePlan']);
+// Planovi
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user/plans', [AuthController::class, 'getUserPlans']);
+    Route::post('/user/plans', [PlanPutovanjaController::class, 'createPlan']);
+    Route::post('/user/plans/generate', [PlanPutovanjaController::class, 'generatePlan']);
+    Route::get('/user/plans/{id}', [PlanPutovanjaController::class, 'getPlanDetails']);
+    Route::put('/user/plans/{id}', [PlanPutovanjaController::class, 'updatePlan']);
+    Route::delete('/user/plans/{id}', [PlanPutovanjaController::class, 'deletePlan']);
+    Route::get('/user/plans/{id}/share', [PlanPutovanjaController::class, 'sharePlan']);
+});
 
-//Destinacije
+// Destinacije
 Route::get('/destinacije', [DestinacijaController::class, 'getAllDestinacije']);
+Route::get('/destinacija/{id}', [DestinacijaController::class, 'getDestinacijaDetails']);
 
-//Znamenitosti
-Route::get('/znamenitosti', [ZnamenitostController::class, 'index']);
+//Znamenitost
+Route::post('/admin/znamenitosti', [ZnamenitostController::class, 'store']);
 
-//Popularne destinacije
-Route::get('/popularne-destinacije', [DestinacijaController::class, 'getPopularDestinations']); //SK8
-Route::get('/destinacija/{id}', [DestinacijaController::class, 'getDestinacijaDetails']); //SK9
 
-Route::middleware(['auth:sanctum', 'uloga:admin'])->get('/admin/test', function (Request $request) {
-    return response()->json([
-        'poruka' => 'Samo admin može da vidi ovu poruku.',
-        'user' => $request->user()->name,
-    ]);
+// BEZ uloge:
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/admin/destinacije', [DestinacijaController::class, 'store']);
 });
 
-
-
+// Popularne destinacije i vreme
+Route::get('/popularne-destinacije', [DestinacijaController::class, 'getPopularDestinations']);
 Route::get('/weather/{city}', [WeatherController::class, 'getWeather']);
-Route::get('/test-env', function () {
-    return response()->json([
-        'key' => env('OPENWEATHER_API_KEY'),
-    ]);
-});
 
+Route::middleware(['auth:sanctum', CheckUloga::class])->prefix('admin')->group(function () {
+    Route::apiResource('/popularne-destinacije', PopularnaDestinacijaController::class)->only(['store', 'destroy']);
+});

@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Container, Typography, Grid, Box, Paper, TextField, Button, MenuItem } from "@mui/material";
+import {
+  Container,
+  Typography,
+  Grid,
+  Box,
+  Paper,
+  TextField,
+  Button,
+  MenuItem,
+} from "@mui/material";
 import Navbar from "../components/Navbar";
 import Breadcrumbs from "../components/Breadcrumbs";
 import api from "../api/axios";
@@ -80,21 +89,6 @@ function PlanGeneratorPage() {
     }
   };
 
-  const cardStyles = {
-    p: 3,
-    borderRadius: 3,
-    backgroundColor: "rgba(255,255,255,0.9)",
-    transition: "transform 0.3s, box-shadow 0.3s",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "stretch",
-    "&:hover": {
-      transform: "translateY(-6px)",
-      boxShadow: "0 10px 24px rgba(0, 0, 0, 0.2)",
-    },
-  };
-  
-
   const buttonStyles = {
     mt: 2,
     fontWeight: "bold",
@@ -109,22 +103,23 @@ function PlanGeneratorPage() {
     <>
       <Navbar />
       <Container
-        sx={{
+        sx={(theme) => ({
           mt: 4,
           p: { xs: 2, sm: 3, md: 4 },
           borderRadius: 3,
-          background: "rgba(255, 255, 255, 0.75)",
+          backgroundColor: theme.palette.background.default,
+          color: theme.palette.text.primary,
           backdropFilter: "blur(10px)",
           boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
           fontFamily: "'Inter', sans-serif",
-        }}
+        })}
       >
         <Breadcrumbs items={["Početna", "Kreiraj plan"]} />
         <Typography
           variant="h4"
           fontWeight="bold"
           gutterBottom
-          sx={{ color: "#1976d2", mb: 4 }}
+          sx={{ color: "primary.main", mb: 4 }}
         >
           Kreiraj plan putovanja
         </Typography>
@@ -132,8 +127,24 @@ function PlanGeneratorPage() {
         <Grid container spacing={3}>
           {/* Ručna forma */}
           <Grid item xs={12} md={6}>
-            <Paper elevation={3} sx={cardStyles}>
-              <Typography variant="h6" fontWeight="bold" sx={{ color: "#1565c0", mb: 2 }}>
+            <Paper
+              elevation={3}
+              sx={(theme) => ({
+                p: 3,
+                borderRadius: 3,
+                backgroundColor: theme.palette.background.paper,
+                color: theme.palette.text.primary,
+                transition: "transform 0.3s, box-shadow 0.3s",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "stretch",
+                "&:hover": {
+                  transform: "translateY(-6px)",
+                  boxShadow: "0 10px 24px rgba(0, 0, 0, 0.2)",
+                },
+              })}
+            >
+              <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main", mb: 2 }}>
                 Ručno kreiranje plana
               </Typography>
               <form onSubmit={handleSubmitManual}>
@@ -168,7 +179,9 @@ function PlanGeneratorPage() {
               {plan && (
                 <Box mt={2}>
                   <Typography fontWeight="bold">{plan.naziv}</Typography>
-                  <Typography>{plan.broj_dana} dana, {plan.ukupni_troskovi}€</Typography>
+                  <Typography>
+                    {plan.broj_dana} dana, {plan.ukupni_troskovi}€
+                  </Typography>
                 </Box>
               )}
             </Paper>
@@ -176,8 +189,24 @@ function PlanGeneratorPage() {
 
           {/* Auto generator */}
           <Grid item xs={12} md={6}>
-            <Paper elevation={3} sx={cardStyles}>
-              <Typography variant="h6" fontWeight="bold" sx={{ color: "#1565c0", mb: 2 }}>
+            <Paper
+              elevation={3}
+              sx={(theme) => ({
+                p: 3,
+                borderRadius: 3,
+                backgroundColor: theme.palette.background.paper,
+                color: theme.palette.text.primary,
+                transition: "transform 0.3s, box-shadow 0.3s",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "stretch",
+                "&:hover": {
+                  transform: "translateY(-6px)",
+                  boxShadow: "0 10px 24px rgba(0, 0, 0, 0.2)",
+                },
+              })}
+            >
+              <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main", mb: 2 }}>
                 Generiši plan automatski
               </Typography>
               <form onSubmit={handleSubmitAuto}>
@@ -191,7 +220,9 @@ function PlanGeneratorPage() {
                 >
                   <MenuItem value="">-- Odaberi --</MenuItem>
                   {destinacije.map((d) => (
-                    <MenuItem key={d.id} value={d.id}>{d.naziv}</MenuItem>
+                    <MenuItem key={d.id} value={d.id}>
+                      {d.naziv}
+                    </MenuItem>
                   ))}
                 </TextField>
                 <TextField
@@ -218,7 +249,9 @@ function PlanGeneratorPage() {
               {autoPlan && (
                 <Box mt={2}>
                   <Typography fontWeight="bold">{autoPlan.naziv}</Typography>
-                  <Typography>{autoPlan.broj_dana} dana, {autoPlan.ukupni_troskovi}€</Typography>
+                  <Typography>
+                    {autoPlan.broj_dana} dana, {autoPlan.ukupni_troskovi}€
+                  </Typography>
                 </Box>
               )}
             </Paper>
