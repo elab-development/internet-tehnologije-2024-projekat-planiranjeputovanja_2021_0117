@@ -37,12 +37,12 @@ Route::get('/destinacije', [DestinacijaController::class, 'getAllDestinacije']);
 Route::get('/destinacija/{id}', [DestinacijaController::class, 'getDestinacijaDetails']);
 
 //Znamenitost
-Route::post('/admin/znamenitosti', [ZnamenitostController::class, 'store']);
 
 
 // BEZ uloge:
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum', 'check.uloga'])->group(function () {
     Route::post('/admin/destinacije', [DestinacijaController::class, 'store']);
+    Route::post('/admin/znamenitosti', [ZnamenitostController::class, 'store']);
 });
 
 // Popularne destinacije i vreme

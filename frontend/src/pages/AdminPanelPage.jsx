@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import Navbar from "../components/Navbar";
 import api from "../api/axios";
+import { useNavigate } from "react-router-dom";
 
 function AdminPanelPage() {
   const [nazivDestinacije, setNazivDestinacije] = useState("");
@@ -27,8 +28,28 @@ function AdminPanelPage() {
   const [otvoriSnackbar, setOtvoriSnackbar] = useState(false);
 
   const token = localStorage.getItem("token");
+  const navigate = useNavigate();
 
   const handleSnackbarClose = () => setOtvoriSnackbar(false);
+
+  const proveriPristup = async () => {
+    try {
+      const res = await api.get("/user", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.data.prava_pristupa !== "admin") {
+        navigate("/"); // Redirekcija ako nije admin
+      }
+    } catch (err) {
+      console.error("Greška pri proveri uloge:", err);
+      navigate("/"); // Redirekcija u slučaju greške
+    }
+  };
+
+  useEffect(() => {
+    proveriPristup();
+    ucitajDestinacije();
+  }, []);
 
   const dodajDestinaciju = async () => {
     try {
@@ -91,10 +112,6 @@ function AdminPanelPage() {
       console.error("Greška pri učitavanju destinacija:", err);
     }
   };
-
-  useEffect(() => {
-    ucitajDestinacije();
-  }, []);
 
   return (
     <>
